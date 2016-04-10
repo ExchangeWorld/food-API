@@ -1,0 +1,44 @@
+{
+  "name": "food-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ExchangeWorld/food-API.git"
+  },
+  "author": "ssarcandy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ExchangeWorld/food-API/issues"
+  },
+  "homepage": "https://github.com/ExchangeWorld/food-API#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.3",
+    "bluebird": "^3.3.4",
+    "body-parser": "^1.15.0",
+    "compression": "^1.6.1",
+    "connect-redis": "^3.0.2",
+    "cookie-parser": "^1.4.1",
+    "csurf": "^1.8.3",
+    "errorhandler": "^1.4.3",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "fuse.js": "^2.2.0",
+    "http": "0.0.0",
+    "lodash": "^4.9.0",
+    "method-override": "^2.3.5",
+    "morgan": "^1.7.0",
+    "multer": "^1.1.0",
+    "newrelic": "^1.26.2",
+    "pg": "^4.5.3",
+    "redis": "^2.6.0-1",
+    "request": "^2.70.0",
+    "sequelize": "^3.21.0",
+    "serve-static": "^1.10.2"
+  }
+}
