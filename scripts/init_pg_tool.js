@@ -1,7 +1,13 @@
 var sequelize = require('../models').sequelize;
+var option = { force: false };
+
+if (process.argv.length > 2)
+    option.force = true;
+
+    console.log(process.argv);
 
 sequelize
-    .sync()
+    .sync(option)
     .then(function(res) {
         console.log('success');
         process.exit(0);

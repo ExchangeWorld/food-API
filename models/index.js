@@ -9,6 +9,7 @@ var sequelize = new Sequelize(
 );
 
 var Member = require("./member").Member(Sequelize, sequelize);
+var MemberSession = require("./member_session").MemberSession(Sequelize, sequelize);
 var Dish = require("./dish").Dish(Sequelize, sequelize);
 var Restaurant = require("./restaurant").Restaurant(Sequelize, sequelize);
 
@@ -33,5 +34,6 @@ exports.sqlPromise = function(query) {
 
 exports.sequelize = sequelize;
 exports.Member = Member;
+exports.MemberSession = MemberSession;
 exports.Dish = Dish;
 exports.Restaurant = Restaurant;
