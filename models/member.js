@@ -25,7 +25,7 @@ exports.Member = function(Sequelize, sequelize) {
         photo: Sequelize.STRING,
         level: {
             type: Sequelize.INTEGER,
-            defaultValue: 3
+            defaultValue: 1
         },
         facebookId: {
             type: Sequelize.TEXT,

@@ -10,6 +10,10 @@ var app = express();
 // API logger
 //app.use(middlewares.pageLog);
 
+// member
+app.post('/member/signup', member.signup);
+
+
 
 
 module.exports = app;

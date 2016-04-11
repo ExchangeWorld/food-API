@@ -27,61 +27,36 @@ var util_path = require('path');
 
 
 exports.signup = function(req, res) {
-    var unicode = Math.random().toString().substring(2, 13);
-    req.body.unicode = unicode;
-    var isPre = _.find(school_waitlist.school, function(item) {
-        return item === req.body.school;
-    });
-    if (isPre) return res.json({
-        error: {
-            school: ["你的學校尚未開放呦chu~"]
-        }
-    });
+    console.log('ldld');
+    var newMember = {
+        user: req.body.user,
+        password: req.body.password,
+        username: req.body.username,
+        gender: req.body.gender
+    };
 
-    Applicant.create(req.body).success(function(applicant) {
-        res.json({
-            success: true
+    if (!newMember.user || !newMember.password || !newMember.username || !newMember.gender) {
+        return res.status(400).json({
+            error: true,
+            msg: 'invaild parameters'
         });
+    }
 
-        var validate_url = "https://www.dcard.tw/api/member/validate/" + applicant.id + "x" + unicode;
+    // encoded password with md5
+    newMember.password = passwordHash(newMember.password);
 
-        // send verification email to school email
-        var mailOptions = {
-            from: 'crossonmidnight@gmail.com', // sender address
-            to: req.body.user, // list of receivers
-            subject: "Dcard 註冊認證信", // Subject line
-            footer: true,
-            html: "Hi, " + req.body.username + ":" +
-                "<br><br>感謝你的註冊，請點擊下方連結，點擊完後即認證成功" +
-                "<br>並請靜待一天工作天，審核完後會寄發審核通過的信件" +
-                "<br><br>祝你能認識新朋友:)" +
-                "<br><br>帳號:" + req.body.user +
-                "<br><br><a href=" + validate_url + ">" + validate_url + "</a>"
-        };
-        sendMail(mailOptions);
-        // send verification email to usual email
-        mailOptions = {
-            from: 'crossonmidnight@gmail.com', // sender address
-            to: req.body.usualmail, // list of receivers
-            subject: "Dcard 驗證提醒信(我不是驗證信)", // Subject line
-            theme: true,
-            footer: true,
-            html: "Hi, " + req.body.username + ":" +
-                "<br><br>感謝你的註冊，請去學校信箱查看信件驗證帳號" +
-                "<br>驗證帳號後請靜待一個工作天，狄卡審核完後會寄發審核通過的信件通知你" +
-                "<br>如果學校信箱沒有收到驗證信，請用原本註冊的學校信箱寄一封信到 <a href='mailto:crossonmidnight@gmail.com' style='color:yellow'>crossonmidnight@gmail.com</a>" +
-                "<br>按下列格式：" +
-                "<br>標題：驗證信" +
-                "<br><br>內文：你的姓名"
-        };
-        sendMail(mailOptions);
-
-
-    }).error(function(err) {
-        res.json({
-            error: err
+    Member
+        .create(newMember)
+        .then(function(member) {
+            res.json({
+                success: true
+            });
+        })
+        .catch(function(err) {
+            res.status(500).json({
+                error: err
+            });
         });
-    });
 };
 
 
