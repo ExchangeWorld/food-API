@@ -7,7 +7,8 @@ exports.Member = function(Sequelize, sequelize) {
         },
         user: {
             type: Sequelize.STRING,
-            allowNull: true,
+            unique: true,
+            allowNull: false,
             validate: {
                 isEmail: {
                     args: true,

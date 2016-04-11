@@ -3,6 +3,7 @@
  */
 
 var Member = require('../../models').Member;
+var MemberSession = require('../../models').MemberSession;
 var Sequelize = require('sequelize');
 var Promise = require('bluebird');
 var _ = require('lodash');
@@ -27,7 +28,6 @@ var util_path = require('path');
 
 
 exports.signup = function(req, res) {
-    console.log('ldld');
     var newMember = {
         user: req.body.user,
         password: req.body.password,
@@ -62,209 +62,72 @@ exports.signup = function(req, res) {
 
 // move out real world login logic, so dcard and facebook login can use it
 var letMeLogin = function(user, req, res, response) {
-    return memberBlackList.findAsync({
-        member_id: user.id
-    }).then(function(m) {
-        if (m.length) {
-            req.session.isLogin = false;
-            response.isLogin = false;
-            response.msg = '帳號遭到停權';
-            throw new BlackMember();
-        }
-        return mongo.facebook_login.findOneAsync({
-            member_id: user.id
-        }, {
-            _id: 0,
-            facebook_id: 1,
-            facebook_name: 1
-        });
-    }).then(function(facebook_login) {
-        req.session.facebook = facebook_login || false;
-        return mongo.logincounters.findAsync({
-            member_id: user.id
-        })
-    }).then(function(loginCount) {
-        if (loginCount.length) {
-            req.session.firstLogin = false;
-            req.session.withinOneDay = loginCount[0].createdAt;
-            mongo.logincounters.updateAsync({
-                member_id: user.id
-            }, {
-                $inc: {
-                    count: 1
-                },
-                $set: {
-                    updatedAt: new Date()
-                }
-            }).then();
-        } else {
-            req.session.firstLogin = true;
-            req.session.withinOneDay = new Date(Date.now());
-            mongo.logincounters.insertAsync({
-                member_id: user.id,
-                count: 1,
-                updatedAt: new Date(),
-                createdAt: new Date()
-            }).then();
-        }
-        req.session.user = user;
-        req.session.isLogin = true;
+    req.session.user = user;
+    req.session.isLogin = true;
 
-        return mongo.member_sessions.insert({
-            member_id: user.dataValues.id,
-            session_id: req.session.id
-        });
-    }).then(function(session) {
+    return MemberSession.create({
+        member_id: user.dataValues.id,
+        session_id: req.session.id
+    })
+    .then(function(session) {
         // omit password field
         response.user = _.omit(user.dataValues, 'password');
-        // UGLY: temporary fix iOS facebook login carsh.
-        if (!response.user.user) {
-            response.user.user = '';
-        }
         response.isLogin = true;
         response.isValidate = true;
         return res.json(response);
-    }).catch(BlackMember, function(e) {
-        res.json(response);
-    }).catch(function(err) {
-        console.error('login memberBlackList.findAsync error:', err);
-        slackbot.phantom("[member.js login memberBlackList.findAsync()] " + err, req);
+    })
+    .catch(function(err) {
+        console.error('login error:', err);
     });
 };
 
+// POST parameters: user, password
 exports.login = function(req, res) {
-    // POST parameters: user, password
-
     // check user and password are valid
     if (!req.body.user || !req.body.password) {
-        return res.json({
+        return res.status(400).json({
             isLogin: false,
             msg: '請輸入帳號密碼',
         });
     }
 
-    var username = req.body.user;
+    var user = req.body.user;
     var password = req.body.password;
 
     var where = {
         where: Sequelize.or({
-            user: username
-        }, {
-            usualmail: username
+            user: user
         })
     };
 
     // first find username in member
-    Member.find(where).success(function(user) {
-        var response = {};
-        var halt_time = Math.round((Math.random() + 1) * 1000);
-        setTimeout(function() {
-            if (!user) {
-                req.session.isLogin = false;
-                response.isLogin = false;
-                response.isValidate = true;
-                Applicant.find(where).success(function(applicant) {
-                    if (!applicant) {
-                        PreApplicant.find({
-                            where: Sequelize.or({
-                                user: username
-                            }, {
-                                usualmail: username
-                            })
-                        }).success(function(pre_applicant) {
-                            if (!pre_applicant) {
-                                // check if the account(usualmail/schoolmail) is not validated
-                                FirstApplicant.find({
-                                    where: {
-                                        usualmail: username
-                                    }
-                                }).then(function(user) {
-                                    if (!user) {
-                                        SecondApplicant.find({
-                                            where: {
-                                                user: username
-                                            }
-                                        }).then(function(user) {
-                                            if (user) {
-                                                response.isValidate = false;
-                                                response.msg = '請至該信箱收取驗證信唷！';
-                                                return res.json(response);
-                                            } else {
-                                                response.msg = '帳號與密碼組合錯誤';
-                                                return res.json(response);
-                                            }
-                                        }, function(err) {
-                                            console.error('login SecondApplicant.find error: ', err);
-                                            slackbot.phantom("[member.js login SecondApplicant.find() error] : " + err, req);
-                                            return res.status(500).json({
-                                                error: true
-                                            });
-                                        });
-                                    } else {
-                                        response.isValidate = false;
-                                        response.msg = '請至該信箱收取驗證信唷！';
-                                        return res.json(response);
-                                    }
-                                }, function(err) {
-                                    console.error('login FirstApplicant.find error: ', err);
-                                    slackbot.phantom("[member.js login FirstApplicant.find() error] : " + err, req);
-                                    return res.status(500).json({
-                                        error: true
-                                    });
-                                });
-                            } else {
-                                if (pre_applicant.verified_school && pre_applicant.verified_usual) {
-                                    response.msg = '已驗證成功，現在就等學校開放囉～～～';
-                                } else if (pre_applicant.verified_school && !pre_applicant.verified_usual) {
-                                    response.msg = '已成功驗證學校信箱，請至常用信箱收驗證信';
-                                } else {
-                                    response.msg = "請至學校信箱收驗證信呦～～～<br />如果沒收到請用學校信箱按下列格式寄一封信到<br />crossonmidnight@gmail.com<br />用學校信箱寄完信就算驗證成功";
-                                    response.isValidate = false;
-                                }
-                                return res.json(response);
-                            }
-                        }).error(function(err) {
-                            console.error('login PreApplicant.find error:', err);
-                            slackbot.phantom("[member.js login PreApplicant.find() error] : " + err, req);
-                            res.status(500).json({
-                                error: true
-                            });
-                        });
-                    } else {
-                        if (applicant.verified) {
-                            response.msg = '帳號審核中，驗證完後 1-3天，審核過即可登入';
-                        } else {
-                            response.msg = '此帳號尚未驗證，請前往學校信箱收取認證信，或用學校信箱寄一封信到 crossonmidnight@gmail.com ，就算驗證成功';
-                        }
-                        response.isValidate = false;
-                        return res.json(response);
-                    }
-                }).error(function(err) {
-                    console.error('login Applicant.find error', err);
-                    slackbot.phantom("[member.js login Applicant.find(where) error] : " + err, req);
-                    res.status(500).json({
-                        error: true
-                    });
-                });
-            } else {
-                // username is correct, then check password is correct
-                if (user.password !== passwordHash(password)) {
-                    // username is correct, but password is not correct
+    Member
+        .find(where)
+        .then(function(user) {
+            var response = {};
+            var halt_time = Math.round((Math.random() + 1) * 1000);
+            setTimeout(function() {
+                if (!user) {
                     req.session.isLogin = false;
                     response.isLogin = false;
-                    response.msg = '帳號與密碼組合錯誤';
-                    return res.json(response);
+                    response.isValidate = true;
+                } else {
+                    // username is correct, but password is not correct
+                    if (user.password !== passwordHash(password)) {
+                        req.session.isLogin = false;
+                        response.isLogin = false;
+                        response.msg = '帳號與密碼組合錯誤';
+                        return res.json(response);
+                    }
+                    letMeLogin(user, req, res, response);
                 }
-                letMeLogin(user, req, res, response);
-            }
-        }, halt_time);
-    }).error(function(err) {
-        console.error('login Member.find error: ', err);
-        slackbot.phantom("[member.js login Member.find(where).error] : " + err, req);
-        res.json({
-            isLogin: false
+            }, halt_time);
+        }).error(function(err) {
+            console.error('login Member.find error: ', err);
+            res.json({
+                isLogin: false
+            });
         });
-    });
 };
 
 // get facebook member id by access token
