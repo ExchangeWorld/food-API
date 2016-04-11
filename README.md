@@ -28,6 +28,8 @@ $ npm run dev  # start nodemon
 ## Document
 
 We use `apidoc` to auto-gen documents, so you need to install it first.
-```
-~$ npm install -g apidoc
+```bash
+~$ npm install -g apidoc # install apidoc
+~$ npm run doc           # generate doc
+~$ cd doc && npm start   # startup doc server at port 3020
 ```

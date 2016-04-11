@@ -1,7 +1,3 @@
-/*
- * Serve JSON to our AngularJS client
- */
-
 var Member = require('../../models').Member;
 var MemberSession = require('../../models').MemberSession;
 var Sequelize = require('sequelize');
