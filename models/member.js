@@ -21,7 +21,8 @@ exports.Member = function(Sequelize, sequelize) {
         },
         username: Sequelize.STRING,
         gender: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            defaultValue: 'F'
         },
         photo: Sequelize.STRING,
         level: {

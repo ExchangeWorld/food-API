@@ -11,16 +11,40 @@ var sequelize = new Sequelize(
 var Member = require("./member").Member(Sequelize, sequelize);
 var MemberSession = require("./member_session").MemberSession(Sequelize, sequelize);
 var Dish = require("./dish").Dish(Sequelize, sequelize);
+var Like = require("./like").Like(Sequelize, sequelize);
 var Restaurant = require("./restaurant").Restaurant(Sequelize, sequelize);
 
 Restaurant.hasMany(Dish, {
-    foreignKey: 'restaurantId',
-    as: 'Dishes'
+    foreignKey: 'restaurant_id',
+    as: 'dishes'
 });
 Dish.belongsTo(Restaurant, {
-    foreignKey: 'restaurantId',
+    foreignKey: 'restaurant_id',
     as: 'restaurant'
 });
+Dish.hasMany(Like, {
+    foreignKey: 'dish_id',
+    as: 'likes'
+});
+Like.belongsTo(Dish, {
+    foreignKey: 'dish_id',
+    as: 'dish'
+});
+Member.hasMany(Like, {
+    foreignKey: 'member_id',
+    as: 'likes'
+});
+Like.belongsTo(Member, {
+    foreignKey: 'member_id',
+    as: 'member'
+});
+
+exports.sequelize = sequelize;
+exports.Member = Member;
+exports.MemberSession = MemberSession;
+exports.Dish = Dish;
+exports.Like = Like;
+exports.Restaurant = Restaurant;
 
 exports.sqlPromise = function(query) {
     return new Promise(function(resolve, reject) {
@@ -31,9 +55,3 @@ exports.sqlPromise = function(query) {
         });
     });
 };
-
-exports.sequelize = sequelize;
-exports.Member = Member;
-exports.MemberSession = MemberSession;
-exports.Dish = Dish;
-exports.Restaurant = Restaurant;

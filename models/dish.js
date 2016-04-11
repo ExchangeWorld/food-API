@@ -13,13 +13,17 @@ exports.Dish = function(Sequelize, sequelize) {
             type: Sequelize.STRING,
             allowNull: true
         },
-        restaurantId: {
+        restaurant_id: {
             type: Sequelize.INTEGER,
             allowNull: false
         },
         photo: {
             type: Sequelize.STRING,
             allowNull: true
+        },
+        score: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
         }
     }, {
         tableName: 'dish'
