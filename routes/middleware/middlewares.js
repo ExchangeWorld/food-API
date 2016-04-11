@@ -1,4 +1,4 @@
-var mongo = require('../../models').mongo;
+var adminlist = require('../admin/adminlist.js');
 
 exports.checkLogin = function(req, res, next) {
     if (!req.session.isLogin) {
@@ -20,17 +20,12 @@ exports.checkAdmin = function(req, res, next) {
 
     var id = req.session.user.id;
 
-    mongo.admins.findOne({
-        member_id: id
-    }, function(err, isAdmin) {
-        if (err || !isAdmin) {
-            return res.status(401).json({
-                err: "No auth"
-            });
-        }
 
-        if (isAdmin.level === 'admin') {
-            return next();
-        }
-    });
+    if (adminlist.search(id) !== -1) {
+        return next();
+    } else {
+        return res.status(401).json({
+            err: "No auth"
+        });
+    }
 };
