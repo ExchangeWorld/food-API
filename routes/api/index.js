@@ -13,6 +13,7 @@ var app = express();
 // member
 app.post('/member/signup', member.signup);
 app.post('/member/login', member.login);
+app.get('/member/status', middlewares.checkLogin, member.status);
 
 
 

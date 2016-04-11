@@ -59,7 +59,6 @@ exports.signup = function(req, res) {
         });
 };
 
-
 // move out real world login logic, so dcard and facebook login can use it
 var letMeLogin = function(user, req, res, response) {
     req.session.user = user;
@@ -284,8 +283,6 @@ exports.facebook_integrate = function(req, res) {
 exports.status = function(req, res) {
     var response = {
         isLogin: false,
-        talks: 0,
-        newsUnread: 0,
         fb_login: {
             status: false
         }
@@ -297,59 +294,25 @@ exports.status = function(req, res) {
 
     response.isLogin = req.session.isLogin;
 
-    if (req.session.facebook) {
-        response.fb_login = req.session.facebook;
-        response.fb_login.status = true;
-    }
-
     var id = req.session.user.id;
-    var now = moment().format('L');
 
-    var memberlog_sql = 'select `dcard`, `news` from `member_log` where `id` = ' + id + ' limit 1';
-    var memberlog = {};
+    var tasks = {
+        //notification: sequelize.query(notification_sql),
+    };
 
-    Promise.resolve(sequelize.query(memberlog_sql)).then(function(results) {
-        memberlog = results ? results[0] : {};
+    Promise
+        .props(tasks)
+        .then(function(results) {
+            response.user = {
+                username: req.session.user.username,
+                user: req.session.user.user,
+                level: req.session.user.level,
+                gender: req.session.user.gender,
+                photo: req.session.user.photo
+            };
 
-        var news = 0;//moment(memberlog.news).utc().format('YYYY-MM-DD HH:mm:ss');
-
-        var notification_sql = 'SELECT COUNT(*) AS `count` FROM `news` WHERE `member_id` = ' + id + ' AND `updatedAt` > "' + news + '" LIMIT 1';
-        var match_sql = 'select * from `match` where member_id = ' + id + ' and date = "' + getToday() + '" limit 1';
-
-        var tasks = {
-            notification: sequelize.query(notification_sql),
-            match: sequelize.query(match_sql)
-        };
-
-        return Promise.props(tasks);
-    }).then(function(results) {
-        response.memberlog = _.pick(memberlog, 'news', 'dcard');
-        response.has_dcard = !!results.match.length;
-        response.dcard = true;
-
-        response.newsUnread = results.notification ? results.notification[0].count : 0;
-
-        //if (memberlog.dcard) {
-            //var dcard = moment(memberlog.dcard).format('L');
-            //response.dcard = (now !== dcard);
-        //}
-
-        response.user = {
-            username: req.session.user.username,
-            user: req.session.user.user,
-            level: req.session.user.level,
-            school: req.session.user.school,
-            department: req.session.user.department,
-            gender: req.session.user.gender,
-            birthday: req.session.user.birthday,
-            photo: photoPrefix + req.session.user.photo,
-            schoolValidated: Boolean(req.session.user.user),
-            usualmail: req.session.user.usualmail,
-            pie: req.session.user.password === '' //pie: password is empty
-        };
-
-        res.json(response);
-    });
+            res.json(response);
+        });
 };
 
 exports.logout = function(req, res) {
