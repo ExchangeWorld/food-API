@@ -5,5 +5,6 @@ var admin = require('./admin');
 
 var app = express();
 
+app.get('/memberlist', middlewares.checkAdmin, admin.memberList);
 
 module.exports = app;

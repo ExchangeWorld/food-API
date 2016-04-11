@@ -1,2 +1,2 @@
 // list of admin member_id
-module.exports = [ ];
+module.exports = [1 ];

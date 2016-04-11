@@ -23,28 +23,29 @@ var fs = require('fs');
 var util_path = require('path');
 
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {post} /api/member/signup Signup new member
+ * @apiName member.signup
+ * @apiGroup member
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {string} user member unique email.
+ * @apiParam {string} password member password
+ * @apiParam {string} username user name.
+ * @apiParam {string} gender user gender
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {bool} success success=true
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "firstname": "John",
- *       "lastname": "Doe"
+ *       "success": true
  *     }
  *
  * @apiError UserNotFound The id of the User was not found.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
+ *     HTTP/1.1 500 error
  *     {
- *       "error": "UserNotFound"
+ *       "error": err_object
  *     }
  */
 exports.signup = function(req, res) {

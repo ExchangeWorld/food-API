@@ -20,8 +20,7 @@ exports.checkAdmin = function(req, res, next) {
 
     var id = req.session.user.id;
 
-
-    if (adminlist.search(id) !== -1) {
+    if (adminlist.indexOf(id) !== -1) {
         return next();
     } else {
         return res.status(401).json({
