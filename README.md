@@ -1,15 +1,15 @@
 # food-API
 
-# Requirement
+## Requirement
 
 - postgre
 - redis
 - node v5
 
-# Setup
+## Setup
 
 1. setting up config file, `config/local.js`, you can copy the template.
-```
+```bash
 $ cp local-development-template.js local.js
 $ vim local.js
 ```
@@ -21,6 +21,13 @@ $ node scripts/init_pg_tool.js  # initial tables
 ```
 
 3. run server
+```bash
+$ npm run dev  # start nodemon
 ```
-$ node cluster.js
+
+## Document
+
+We use `apidoc` to auto-gen documents, so you need to install it first.
+```
+~$ npm install -g apidoc
 ```
