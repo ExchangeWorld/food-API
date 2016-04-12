@@ -23,7 +23,7 @@ var fs = require('fs');
 var util_path = require('path');
 
 /**
- * @api {post} /api/member/signup Signup new member
+ * @api {post} /api/member/signup Signup
  * @apiName member.signup
  * @apiGroup member
  *
@@ -32,16 +32,14 @@ var util_path = require('path');
  * @apiParam {string} username user name.
  * @apiParam {string} gender user gender
  *
- * @apiSuccess {bool} success success=true
- *
+ * @apiSuccess {bool} success success
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "success": true
  *     }
  *
- * @apiError UserNotFound The id of the User was not found.
- *
+ * @apiError ServerError server internal error
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 500 error
  *     {
@@ -101,7 +99,41 @@ var letMeLogin = function(user, req, res, response) {
     });
 };
 
-// POST parameters: user, password
+/**
+ * @api {post} /api/member/login Login
+ * @apiName member.login
+ * @apiGroup member
+ *
+ * @apiParam {string} user member's account(email).
+ * @apiParam {string} password member's password
+ *
+ * @apiSuccess {object} memberObject details of member data
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *         "id": 9,
+ *         "user": "aswe@gmail.com",
+ *         "username": "req.body.username",
+ *         "gender": "M",
+ *         "photo": null,
+ *         "level": 1,
+ *         "facebookId": null,
+ *         "createdAt": "2016-04-12T03:26:19.430Z",
+ *         "updatedAt": "2016-04-12T03:26:19.430Z"
+ *       },
+ *       "isLogin": true,
+ *       "isValidate": true
+ *     }
+ *
+ * @apiError UserNotFound Account/password not match
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 error
+ *     {
+ *       "isLogin": false,
+ *       "msg": "帳號與密碼組合錯誤"
+ *     }
+ */
 exports.login = function(req, res) {
     // check user and password are valid
     if (!req.body.user || !req.body.password) {
@@ -137,14 +169,15 @@ exports.login = function(req, res) {
                         req.session.isLogin = false;
                         response.isLogin = false;
                         response.msg = '帳號與密碼組合錯誤';
-                        return res.json(response);
+                        return res.status(400).json(response);
                     }
                     letMeLogin(user, req, res, response);
                 }
             }, halt_time);
         }).error(function(err) {
             console.error('login Member.find error: ', err);
-            res.json({
+            res.status(500).json({
+                msg: 'server error',
                 isLogin: false
             });
         });

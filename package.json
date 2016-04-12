@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node cluster.js",
     "dev": "nodemon cluster.js",
-    "doc": "cd doc && apidoc -i ../routes && cd .."
+    "doc:build": "cd doc && apidoc -i ../routes && cd ..",
+    "doc:start": "cd doc && npm start",
+    "doc": "npm run doc:build && npm run doc:start"
   },
   "repository": {
     "type": "git",
