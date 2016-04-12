@@ -183,6 +183,71 @@ exports.login = function(req, res) {
         });
 };
 
+/**
+ * @api {get} /api/member/status member status
+ * @apiName member.status
+ * @apiGroup member
+ *
+ * @apiSuccess {object} memberObject details of "current session" member data
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "isLogin": true,
+ *       "fb_login": {
+ *         "status": false
+ *       },
+ *       "user": {
+ *         "username": "req.body.username",
+ *         "user": "aswe@gmail.com",
+ *         "level": 1,
+ *         "gender": "M",
+ *         "photo": null
+ *       }
+ *     }
+ *
+ * @apiError NoSession not login.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 error
+ *     {
+ *       "error": true,
+ *       "msg": "請登入"
+ *     }
+ */
+exports.status = function(req, res) {
+    var response = {
+        isLogin: false,
+        fb_login: {
+            status: false
+        }
+    };
+
+    if ((!_.has(req.session, 'isLogin')) || !req.session.isLogin) {
+        return res.json(response);
+    }
+
+    response.isLogin = req.session.isLogin;
+
+    var id = req.session.user.id;
+
+    var tasks = {
+        //notification: sequelize.query(notification_sql),
+    };
+
+    Promise
+        .props(tasks)
+        .then(function(results) {
+            response.user = {
+                username: req.session.user.username,
+                user: req.session.user.user,
+                level: req.session.user.level,
+                gender: req.session.user.gender,
+                photo: req.session.user.photo
+            };
+
+            res.json(response);
+        });
+};
+
 // get facebook member id by access token
 var getFbMember = function(accessToken) {
     return requestAsync({
@@ -334,41 +399,26 @@ exports.facebook_integrate = function(req, res) {
         });
 };
 
-exports.status = function(req, res) {
-    var response = {
-        isLogin: false,
-        fb_login: {
-            status: false
-        }
-    };
-
-    if ((!_.has(req.session, 'isLogin')) || !req.session.isLogin) {
-        return res.json(response);
-    }
-
-    response.isLogin = req.session.isLogin;
-
-    var id = req.session.user.id;
-
-    var tasks = {
-        //notification: sequelize.query(notification_sql),
-    };
-
-    Promise
-        .props(tasks)
-        .then(function(results) {
-            response.user = {
-                username: req.session.user.username,
-                user: req.session.user.user,
-                level: req.session.user.level,
-                gender: req.session.user.gender,
-                photo: req.session.user.photo
-            };
-
-            res.json(response);
-        });
-};
-
+/**
+ * @api {post} /api/member/logout Logout
+ * @apiName member.logout
+ * @apiGroup member
+ *
+ * @apiSuccess {object} isLogin =false
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "isLogin": false,
+ *     }
+ *
+ * @apiError NoSession not login.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 error
+ *     {
+ *       "error": true,
+ *       "msg": "請登入"
+ *     }
+ */
 exports.logout = function(req, res) {
     req.session.destroy(function() {
         res.json({
