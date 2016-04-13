@@ -10,9 +10,9 @@ var sequelize = new Sequelize(
 
 var Member = require("./member").Member(Sequelize, sequelize);
 var MemberSession = require("./member_session").MemberSession(Sequelize, sequelize);
+var Restaurant = require("./restaurant").Restaurant(Sequelize, sequelize);
 var Dish = require("./dish").Dish(Sequelize, sequelize);
 var Like = require("./like").Like(Sequelize, sequelize);
-var Restaurant = require("./restaurant").Restaurant(Sequelize, sequelize);
 
 Restaurant.hasMany(Dish, {
     foreignKey: 'restaurant_id',
@@ -42,9 +42,9 @@ Like.belongsTo(Member, {
 exports.sequelize = sequelize;
 exports.Member = Member;
 exports.MemberSession = MemberSession;
+exports.Restaurant = Restaurant;
 exports.Dish = Dish;
 exports.Like = Like;
-exports.Restaurant = Restaurant;
 
 exports.sqlPromise = function(query) {
     return new Promise(function(resolve, reject) {

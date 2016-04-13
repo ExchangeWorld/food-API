@@ -1,5 +1,9 @@
+'use strict';
+
+var passwordHash = require('../lib/md5').passwordHash;
+
 exports.Member = function(Sequelize, sequelize) {
-    return sequelize.define('Member', {
+    let Member = sequelize.define('Member', {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -36,4 +40,12 @@ exports.Member = function(Sequelize, sequelize) {
     }, {
         tableName: 'member'
     });
+
+    // encoded password with md5
+    Member.beforeCreate(function(instance, options) {
+        instance.password = passwordHash(instance.password);
+        return instance;
+    });
+
+    return Member;
 };

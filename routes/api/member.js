@@ -61,9 +61,6 @@ exports.signup = function(req, res) {
         });
     }
 
-    // encoded password with md5
-    newMember.password = passwordHash(newMember.password);
-
     Member
         .create(newMember)
         .then(function(member) {
