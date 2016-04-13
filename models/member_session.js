@@ -14,6 +14,10 @@ exports.MemberSession = function(Sequelize, sequelize) {
             allowNull: false
         }
     }, {
-        tableName: 'member_session'
+        tableName: 'member_session',
+        indexes: [{
+            fields: ['member_id'],
+            method: 'BTREE'
+        }]
     });
 };

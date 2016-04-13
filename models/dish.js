@@ -46,7 +46,14 @@ exports.Dish = function(Sequelize, sequelize) {
             defaultValue: 0
         }
     }, {
-        tableName: 'dish'
+        tableName: 'dish',
+        indexes: [{
+            fields: ['lat'],
+            method: 'BTREE'
+        }, {
+            fields: ['lon'],
+            method: 'BTREE'
+        }]
     });
 
 

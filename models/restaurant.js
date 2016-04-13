@@ -30,6 +30,13 @@ exports.Restaurant = function(Sequelize, sequelize) {
             allowNull: false
         }
     }, {
-        tableName: 'restaurant'
+        tableName: 'restaurant',
+        indexes: [{
+            fields: ['lat'],
+            method: 'BTREE'
+        }, {
+            fields: ['lon'],
+            method: 'BTREE'
+        }]
     });
 };

@@ -18,6 +18,13 @@ exports.Like = function(Sequelize, sequelize) {
             allowNull: false,
         }
     }, {
-        tableName: 'like'
+        tableName: 'like',
+        indexes: [{
+            fields: ['member_id'],
+            method: 'BTREE'
+        }, {
+            fields: ['dish_id'],
+            method: 'BTREE'
+        }]
     });
 };
