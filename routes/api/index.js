@@ -6,6 +6,7 @@ var app = express();
 var middlewares = require('../middleware/middlewares.js');
 var member = require('./member');
 var dish = require('./dish');
+var restaurant = require('./restaurant');
 
 // API logger
 //app.use(middlewares.pageLog);
@@ -20,5 +21,10 @@ app.post('/member/logout', middlewares.checkLogin, member.logout);
 // dish
 app.post('/dish', middlewares.checkLogin, dish.create);
 
+
+// restaurant
+app.get('/restaurant', restaurant.details);
+app.post('/restaurant', restaurant.create);
+app.get('/restaurant/find', restaurant.findRestaurantsWithBoundary);
 
 module.exports = app;
