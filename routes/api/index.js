@@ -1,11 +1,11 @@
 var express = require('express');
+var multer = require('multer');
+var upload = multer();
+var app = express();
 
 var middlewares = require('../middleware/middlewares.js');
 var member = require('./member');
-var multer = require('multer');
-var upload = multer();
-
-var app = express();
+var dish = require('./dish');
 
 // API logger
 //app.use(middlewares.pageLog);
@@ -17,6 +17,8 @@ app.get('/member/status', middlewares.checkLogin, member.status);
 app.post('/member/logout', middlewares.checkLogin, member.logout);
 
 
+// dish
+app.post('/dish', middlewares.checkLogin, dish.create);
 
 
 module.exports = app;
