@@ -19,7 +19,7 @@ app.post('/member/logout', middlewares.checkLogin, member.logout);
 
 
 // dish
-app.post('/dish', middlewares.checkLogin, dish.create);
+app.post('/dish/like', middlewares.checkLogin, dish.like);
 
 
 // restaurant
