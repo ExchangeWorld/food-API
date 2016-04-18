@@ -24,12 +24,14 @@ exports.update = function(req, res) {
  * @apiPermission Login
  * 
  * @apiDescription 
- *   Toggle dish like
- *   - already liked -> remove like
- *   - not yet liked -> add like
+ *   Toggle dish vote
+ *   - already upvoted -> remove upvote
+ *   - not yet upvote -> add upvote
+ *   - already downvoted -> remove downvote
+ *   - not yet downvote -> add downvote
  *
  *
- * @apiParam {int} point score for this dish(usually = 1)
+ * @apiParam {int} point score for this dish, 1 for upvote, -1 for downvote
  * @apiParam {int} dish_id
  *
  * @apiSuccessExample Success-Response:
@@ -63,23 +65,16 @@ exports.like = function(req, res) {
             _dish = dish;
 
             return Like.find({
-                member_id: memberId,
-                dish_id: dishId
+                where: {
+                    member_id: memberId,
+                    dish_id: dishId,
+                    point: point
+                }
             });
         })
         .then((like)=> {
             if (like) {
-                return like
-                    .destroy()
-                    .then(()=> {
-                        return res.status(201).send();
-                    })
-                    .catch((err)=> {
-                        console.error('dislike dish error: ', err);
-                        return res.status(500).json({
-                            msg: 'server error'
-                        });
-                    });
+                return like.destroy();
             }
              
             return Like.create({
@@ -89,11 +84,7 @@ exports.like = function(req, res) {
             });
         })
         .then(()=> {
-            _dish.score += point;
-            _dish
-                .save()
-                .then(()=> { return res.status(201).send(); })
-                .catch((err) => { console.error('save dish like error: ', err); });
+            return res.status(201).send();
         })
         .catch((err)=> {
             console.error('like dish error: ', err);
