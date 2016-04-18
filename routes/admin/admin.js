@@ -20,9 +20,10 @@ exports.restaruantList = function(req, res) {
 };
 
 /**
- * @api {post} /api/dish Create
+ * @api {post} /admin/dish Create Dish
  * @apiName dish.create
- * @apiGroup dish
+ * @apiGroup admin 
+ * @apiPermission Admin
  *
  * @apiParam {string} name dish name
  * @apiParam {int} restaurant_id 

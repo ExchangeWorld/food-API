@@ -184,6 +184,7 @@ exports.login = function(req, res) {
  * @api {get} /api/member/status member status
  * @apiName member.status
  * @apiGroup member
+ * @apiPermission Login
  *
  * @apiSuccess {object} memberObject details of "current session" member data
  * @apiSuccessExample Success-Response:
@@ -400,6 +401,7 @@ exports.facebook_integrate = function(req, res) {
  * @api {post} /api/member/logout Logout
  * @apiName member.logout
  * @apiGroup member
+ * @apiPermission Login
  *
  * @apiSuccess {object} isLogin =false
  * @apiSuccessExample Success-Response:

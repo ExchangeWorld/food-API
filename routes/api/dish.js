@@ -16,7 +16,28 @@ exports.update = function(req, res) {
 
 };
 
-// like the dish
+
+/**
+ * @api {post} /api/dish/like Like
+ * @apiName dish.like
+ * @apiGroup dish
+ * @apiPermission Login
+ * 
+ * @apiDescription 
+ *   Toggle dish like
+ *   - already liked -> remove like
+ *   - not yet liked -> add like
+ *
+ *
+ * @apiParam {int} point score for this dish(usually = 1)
+ * @apiParam {int} dish_id
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 error
+ */
 exports.like = function(req, res) {
     let point = parseInt(req.body.point, 10);
     let memberId = req.session.user.id;
@@ -80,6 +101,4 @@ exports.like = function(req, res) {
                 msg: 'server error'
             });
         });
-
-
 };
