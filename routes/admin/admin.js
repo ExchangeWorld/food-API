@@ -5,6 +5,7 @@ var _ = require('lodash');
 
 var Member = require('../../models').Member;
 var MemberSession = require('../../models').MemberSession;
+var Restaurant = require('../../models').Restaurant;
 
 /**
  * @api {post} /admin/memberList memberList
@@ -59,13 +60,61 @@ exports.memberList = function(req, res) {
         });
 };
 
-exports.restaruantList = function(req, res) {
+/**
+ * @api {post} /admin/restaurantList restaurantList
+ * @apiName admin.restaurantList
+ * @apiGroup admin 
+ * @apiPermission Admin
+ *
+ * @apiParam {int} page start from 1
+ *
+ * @apiSuccess {array} restaurants array of restaurant data
+ * @apiSuccessExample Success-Response:
+ *     [
+ *       {
+ *         "id": 1,
+ *         "name": "ErikDampier",
+ *         "description": "Bibendum neque suscipit hendrerit a aliquam vulputate faucibus fringilla adipiscing nisi neque, auctor est auctor ante justo cras enim condimentum blandit euismod. Felis adipiscing nibh.",
+ *         "photo": "http://dummyimage.com/450x384/050/fff",
+ *         "location": "Antarctica Nottingham",
+ *         "lat": 35.271565,
+ *         "lon": 75.088134,
+ *         "createdAt": "2016-04-13T05:34:14.598Z",
+ *         "updatedAt": "2016-04-13T05:34:14.598Z"
+ *       },
+ *       ...
+ *     ]
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 error
+ */
+exports.restaurantList = function(req, res) {
+    let page = parseInt(req.query.page, 10);
+    let limit = 20;
 
+    if (!page) {
+        return res.status(400).json({
+            msg: 'page must provided.'
+        });
+    }
+
+    Restaurant
+        .findAll({
+            limit: limit,
+            offset: (page - 1)*limit
+        })
+        .then((restaurants)=> {
+            return res.json(restaurants);
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
 };
 
 /**
  * @api {post} /admin/dish Create Dish
- * @apiName dish.create
+ * @apiName admin.dishCreate
  * @apiGroup admin 
  * @apiPermission Admin
  *
