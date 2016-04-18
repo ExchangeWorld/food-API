@@ -159,7 +159,7 @@ exports.login = function(req, res) {
                 if (!user) {
                     req.session.isLogin = false;
                     response.isLogin = false;
-                    response.isValidate = true;
+                    return res.status(400).json(response);
                 } else {
                     // username is correct, but password is not correct
                     if (user.password !== passwordHash(password)) {
