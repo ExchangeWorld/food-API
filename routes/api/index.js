@@ -24,7 +24,7 @@ app.post('/dish/like', middlewares.checkLogin, dish.like);
 
 // restaurant
 app.get('/restaurant', restaurant.details);
-app.post('/restaurant', restaurant.create);
 app.get('/restaurant/find', restaurant.findRestaurantsWithBoundary);
+app.get('/restaurant/dishes', restaurant.dishesList);
 
 module.exports = app;

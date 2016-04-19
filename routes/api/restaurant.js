@@ -1,15 +1,11 @@
 'use strict';
 
-var Restaurant = require('../../models').Restaurant;
 var Sequelize = require('sequelize');
 var Promise = require('bluebird');
 var _ = require('lodash');
 
-
-
-exports.create = function(req, res) {
-
-};
+var Restaurant = require('../../models').Restaurant;
+var Dish = require('../../models').Dish;
 
 /**
  * @api {get} /api/restaurant FindByID
@@ -61,22 +57,73 @@ exports.details = function(req, res) {
             res.json(restaurant);
         })
         .catch((err)=> {
-            console.erroe(err);
+            console.error(err);
             res.status(500).send();
         });
-};
-
-exports.destory = function(req, res) {
-
 };
 
 exports.update = function(req, res) {
 
 };
 
-// list of Restaurant's dishes
+/**
+ * @api {get} /api/restaurant/dishes DishesList
+ * @apiName restaurant.dishesList
+ * @apiGroup restaurant
+ *
+ * @apiParam {int} id restaurantId
+ *
+ * @apiSuccess {array} Dishes list of dish
+ * @apiSuccessExample Success:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *         "id": 3,
+ *         "name": "Lance Lenihan",
+ *         "description": "Facilisis tincidunt tincidunt sollicitudin tincidunt justo. Maecenas ligula facilisis dignissim, sodales vulputate sagittis dictum tortor ipsum viverra e vitae bibendum pretium. Au dignissim tincidunt commodo.",
+ *         "restaurant_id": 1,
+ *         "photo": "http://dummyimage.com/477x433/005/fff",
+ *         "lat": 35.271565,
+ *         "lon": 75.088134,
+ *         "score": 0,
+ *         "createdAt": "2016-04-13T05:34:15.186Z",
+ *         "updatedAt": "2016-04-13T05:34:15.186Z"
+ *       },
+ *       ...
+ *     ]
+ *
+ * @apiError ServerError server internal error
+ * @apiError InvalidParams id not provided
+ * @apiErrorExample Invalid-Params:
+ *     HTTP/1.1 400 error
+ *     {
+ *       "msg": "id must provided."
+ *     }
+ * @apiErrorExample Server-Error
+ *     HTTP/1.1 500 error
+ */
 exports.dishesList = function(req, res) {
+    let restaurantId = parseInt(req.query.id, 10);
 
+    if (!restaurantId) {
+        return res.status(400).json({
+            msg: 'id must provided.'
+        });
+    }
+
+    Dish
+        .findAll({
+            where: {
+                restaurant_id: restaurantId
+            }
+        })
+        .then((dishes)=> {
+            res.json(dishes);
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
 };
 
 /**
