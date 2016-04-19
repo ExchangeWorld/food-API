@@ -37,7 +37,7 @@ var Restaurant = require('../../models').Restaurant;
  *     HTTP/1.1 500 error
  */
 exports.memberList = function(req, res) {
-    let page = parseInt(req.query.page, 10);
+    let page = parseInt(req.query._page, 10);
     let limit = 20;
 
     if (!page) {
@@ -49,7 +49,11 @@ exports.memberList = function(req, res) {
     Member
         .findAll({
             limit: limit,
-            offset: (page - 1)*limit
+            offset: (page - 1)*limit,
+            order: 'id DESC'
+        })
+        .map((member)=> {
+            return _.pick(member, ['id', 'user', 'username', 'level', 'facebookId']);
         })
         .then((members)=> {
             return res.json(members);

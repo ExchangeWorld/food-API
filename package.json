@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/ExchangeWorld/food-API#readme",
   "dependencies": {
+    "angular": "^1.5.5",
     "async": "^2.0.0-rc.3",
     "bluebird": "^3.3.4",
     "body-parser": "^1.15.0",
@@ -29,6 +30,7 @@
     "connect-redis": "^3.0.2",
     "cookie-parser": "^1.4.1",
     "csurf": "^1.8.3",
+    "ejs": "^2.4.1",
     "errorhandler": "^1.4.3",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
@@ -39,6 +41,7 @@
     "morgan": "^1.7.0",
     "multer": "^1.1.0",
     "newrelic": "^1.26.2",
+    "ng-admin": "^1.0.0-alpha2",
     "pg": "^4.5.3",
     "redis": "^2.6.0-1",
     "request": "^2.70.0",

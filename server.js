@@ -30,14 +30,14 @@ exports = module.exports = function(options) {
 
     options = _.extend({
         log: true,
-        csrf: true
+        csrf: false
     }, options);
 
     // Configuration
     app.locals.config = config;
-    //app.set('views', path.join(__dirname, 'views'));
-    //app.set('view engine', 'ejs');
-    //app.engine('ejs', require('ejs').renderFile);
+    app.set('views', __dirname + '/views');
+    app.set('view engine', 'ejs');
+    app.engine('ejs', require('ejs').renderFile);
 
     if (PRODUCTION) {
         app.enable('view cache');
@@ -62,7 +62,7 @@ exports = module.exports = function(options) {
     }
 
     // Serve static files
-    app.use(serveStatic(path.join(__dirname, 'public'), {
+    app.use(serveStatic(path.join(__dirname, 'views'), {
         maxAge: 1000 * 60 * 60 * 24 // 1 day
     }));
 

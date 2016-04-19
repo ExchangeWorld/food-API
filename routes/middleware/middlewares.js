@@ -11,6 +11,7 @@ exports.checkLogin = function(req, res, next) {
 };
 
 exports.checkAdmin = function(req, res, next) {
+    console.log(req.session);
     if (!req.session.isLogin) {
         return res.status(401).json({
             error: true,
