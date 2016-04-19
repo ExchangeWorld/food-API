@@ -2,7 +2,8 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('admin', ['ui.router', 'ng-admin'])
+angular
+    .module('admin', ['ui.router', 'ng-admin'])
     .config(['$stateProvider', 'NgAdminConfigurationProvider', '$locationProvider', function($stateProvider, nga, $locationProvider) {
         $stateProvider
             .state('index', {
@@ -21,22 +22,15 @@ angular.module('admin', ['ui.router', 'ng-admin'])
 
 
         // create an admin application
-        var admin = nga.application('My First Admin').baseApiUrl('/admin/'); // main API endpoint
+        var admin = nga.application('FOOD admin panel').baseApiUrl('/admin/'); // main API endpoint
 
 
-        var user = nga.entity('memberList');
-        // set the fields of the user entity list view
-        user.listView().fields([
-            nga.field('id'),
-            nga.field('user'),
-            nga.field('username'),
-            nga.field('level'),
-            nga.field('facebookId')
-        ]);
-        // add the user entity to the admin application
-        admin.addEntity(user);
-        // attach the admin application to the DOM and execute it
+        // Configuration of main utils
+        configMember(nga, admin);
+        configRestaurant(nga, admin);
+
+        admin.menu(menu(nga, admin));
+
         nga.configure(admin);
-        
     }]);
 

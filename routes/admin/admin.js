@@ -13,7 +13,7 @@ var Restaurant = require('../../models').Restaurant;
  * @apiGroup admin 
  * @apiPermission Admin
  *
- * @apiParam {int} page start from 1
+ * @apiParam {int} _page start from 1
  *
  * @apiSuccess {array} members array of member data
  * @apiSuccessExample Success-Response:
@@ -21,14 +21,9 @@ var Restaurant = require('../../models').Restaurant;
  *       {
  *         "id": 1,
  *         "user": "travis.rohloff@coolinga.xyz",
- *         "password": "8138d687d0d5",
  *         "username": "TravisRohloff",
- *         "gender": "M",
- *         "photo": "http://dummyimage.com/455x383/500/fff",
  *         "level": 1,
  *         "facebookId": null,
- *         "createdAt": "2016-04-13T05:34:14.895Z",
- *         "updatedAt": "2016-04-13T05:34:14.895Z"
  *       },
  *       ...
  *     ]
@@ -47,16 +42,18 @@ exports.memberList = function(req, res) {
     }
 
     Member
-        .findAll({
+        .findAndCountAll({
             limit: limit,
             offset: (page - 1)*limit,
             order: 'id DESC'
         })
-        .map((member)=> {
-            return _.pick(member, ['id', 'user', 'username', 'level', 'facebookId']);
-        })
-        .then((members)=> {
-            return res.json(members);
+        .then((result)=> {
+            result.members = result.rows.map((m)=>{
+                return _.pick(m, ['id', 'user', 'username', 'level', 'facebookId']);
+            });
+            res.append('X-Total-Count', result.count);
+
+            return res.json(result.members);
         })
         .catch((err)=> {
             console.error(err);
@@ -70,7 +67,7 @@ exports.memberList = function(req, res) {
  * @apiGroup admin 
  * @apiPermission Admin
  *
- * @apiParam {int} page start from 1
+ * @apiParam {int} _page start from 1
  *
  * @apiSuccess {array} restaurants array of restaurant data
  * @apiSuccessExample Success-Response:
@@ -78,13 +75,7 @@ exports.memberList = function(req, res) {
  *       {
  *         "id": 1,
  *         "name": "ErikDampier",
- *         "description": "Bibendum neque suscipit hendrerit a aliquam vulputate faucibus fringilla adipiscing nisi neque, auctor est auctor ante justo cras enim condimentum blandit euismod. Felis adipiscing nibh.",
- *         "photo": "http://dummyimage.com/450x384/050/fff",
  *         "location": "Antarctica Nottingham",
- *         "lat": 35.271565,
- *         "lon": 75.088134,
- *         "createdAt": "2016-04-13T05:34:14.598Z",
- *         "updatedAt": "2016-04-13T05:34:14.598Z"
  *       },
  *       ...
  *     ]
@@ -93,7 +84,7 @@ exports.memberList = function(req, res) {
  *     HTTP/1.1 500 error
  */
 exports.restaurantList = function(req, res) {
-    let page = parseInt(req.query.page, 10);
+    let page = parseInt(req.query._page, 10);
     let limit = 20;
 
     if (!page) {
@@ -103,12 +94,18 @@ exports.restaurantList = function(req, res) {
     }
 
     Restaurant
-        .findAll({
+        .findAndCountAll({
             limit: limit,
-            offset: (page - 1)*limit
+            offset: (page - 1)*limit,
+            order: 'id DESC'
         })
-        .then((restaurants)=> {
-            return res.json(restaurants);
+        .then((result)=> {
+            result.rows.forEach((m)=>{
+                return _.pick(m, ['id', 'name', 'location']);
+            });
+            res.append('X-Total-Count', result.count);
+
+            return res.json(result.rows);
         })
         .catch((err)=> {
             console.error(err);
