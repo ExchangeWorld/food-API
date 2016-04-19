@@ -1,4 +1,4 @@
-var adminlist = require('../admin/adminlist.js');
+var adminlist = require('../../config/local.js').adminlist;
 
 exports.checkLogin = function(req, res, next) {
     if (!req.session.isLogin) {
@@ -11,7 +11,6 @@ exports.checkLogin = function(req, res, next) {
 };
 
 exports.checkAdmin = function(req, res, next) {
-    console.log(req.session);
     if (!req.session.isLogin) {
         return res.status(401).json({
             error: true,

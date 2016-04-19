@@ -7,6 +7,8 @@ module.exports = {
 
     port: (process.env.PORT || 3000),
 
+    adminlist: [],
+
     middleware: {
         view_cache: false,
         logger_dev: true,
