@@ -1,14 +1,13 @@
-function configRestaurant(nga, admin) {
-    var entity = nga.entity('restaurantList');
-    // set the fields of the user entity list view
-
+function configDish(nga, admin) {
+    var entity = nga.entity('dishList');
     entity
         .listView()
         .fields([
             nga.field('id'),
             nga.field('name'),
-            nga.field('location'),
+            nga.field('score'),
         ])
+        .perPage(20)
         .listActions(['show', 'edit'])
         .batchActions([])
 
@@ -19,8 +18,9 @@ function configRestaurant(nga, admin) {
             nga.field('photo', 'template').template('<img src="{{ entry.values.photo }}" />'),
             nga.field('id'),
             nga.field('name'),
+            nga.field('score'),
+            nga.field('restaurant_id'),
             nga.field('description'),
-            nga.field('location'),
             nga.field('lat'),
             nga.field('lon'),
             nga.field('createdAt'),
@@ -36,8 +36,9 @@ function configRestaurant(nga, admin) {
             nga.field('id')
                 .editable(false),
             nga.field('name'),
+            nga.field('score', 'number'),
+            nga.field('restaurant_id', 'number'),
             nga.field('description'),
-            nga.field('location'),
             nga.field('lat', 'float'),
             nga.field('lon', 'float'),
             nga.field('createdAt')

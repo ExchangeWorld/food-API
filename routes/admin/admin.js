@@ -3,34 +3,11 @@ var Sequelize = require('sequelize');
 var Promise = require('bluebird');
 var _ = require('lodash');
 
+var Dish = require('../../models').Dish;
 var Member = require('../../models').Member;
 var MemberSession = require('../../models').MemberSession;
 var Restaurant = require('../../models').Restaurant;
 
-/**
- * @api {post} /admin/memberList memberList
- * @apiName admin.memberList
- * @apiGroup admin 
- * @apiPermission Admin
- *
- * @apiParam {int} _page start from 1
- *
- * @apiSuccess {array} members array of member data
- * @apiSuccessExample Success-Response:
- *     [
- *       {
- *         "id": 1,
- *         "user": "travis.rohloff@coolinga.xyz",
- *         "username": "TravisRohloff",
- *         "level": 1,
- *         "facebookId": null,
- *       },
- *       ...
- *     ]
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 error
- */
 exports.memberList = function(req, res) {
     let page = parseInt(req.query._page, 10);
     let limit = 20;
@@ -61,28 +38,141 @@ exports.memberList = function(req, res) {
         });
 };
 
-/**
- * @api {post} /admin/restaurantList restaurantList
- * @apiName admin.restaurantList
- * @apiGroup admin 
- * @apiPermission Admin
- *
- * @apiParam {int} _page start from 1
- *
- * @apiSuccess {array} restaurants array of restaurant data
- * @apiSuccessExample Success-Response:
- *     [
- *       {
- *         "id": 1,
- *         "name": "ErikDampier",
- *         "location": "Antarctica Nottingham",
- *       },
- *       ...
- *     ]
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 error
- */
+exports.memberDetails = function(req, res) {
+    let _id = parseInt(req.params.id, 10);
+
+    if (!_id) {
+        return res.status(400).json({
+            msg: 'id must provided.'
+        });
+    }
+
+    Member
+        .findById(_id)
+        .then((result)=> {
+            return res.json(result);
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
+exports.memberEdit = function(req, res) {
+    let newVal = req.body;
+    let id = newVal.id;
+    newVal = _.pick(newVal, 'user', 'username', 'facebookId');
+
+    Member
+        .findById(id)
+        .then((member)=> {
+            _.assign(member, newVal);
+            return member.save();
+        })
+        .then(()=> {
+            res.status(204).send();
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
+exports.dishList = function(req, res) {
+    let page = parseInt(req.query._page, 10);
+    let limit = 20;
+
+    if (!page) {
+        return res.status(400).json({
+            msg: 'page must provided.'
+        });
+    }
+
+    Dish
+        .findAndCountAll({
+            limit: limit,
+            offset: (page - 1)*limit,
+            order: 'id DESC'
+        })
+        .then((result)=> {
+            result.rows= result.rows.map((m)=>{
+                return _.pick(m, ['id', 'name', 'restaurant_id', 'score']);
+            });
+            res.append('X-Total-Count', result.count);
+
+            return res.json(result.rows);
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
+exports.dishDetails = function(req, res) {
+    let _id = parseInt(req.params.id, 10);
+
+    if (!_id) {
+        return res.status(400).json({
+            msg: 'id must provided.'
+        });
+    }
+
+    Dish
+        .findById(_id)
+        .then((result)=> {
+            return res.json(result);
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
+exports.dishEdit = function(req, res) {
+    let newVal = req.body;
+    let id = newVal.id;
+    newVal = _.pick(newVal, 'name', 'score', 'restaurant_id', 'description', 'lat', 'lon');
+
+    Dish
+        .findById(id)
+        .then((dish)=> {
+            _.assign(dish, newVal);
+            return dish.save();
+        })
+        .then(()=> {
+            res.status(204).send();
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
+exports.dishCreate = function(req, res) {
+    let newDish = {
+        name: req.body.name,
+        restaurant_id: parseInt(req.body.restaurant_id, 10),
+        description: req.body.description,
+        photo: req.body.photo
+    };
+
+    if (!newDish.name || !newDish.restaurant_id) {
+        return res.status(400).json({
+            msg: 'name & restaurant_id must provided.'
+        });
+    }
+
+    Dish
+        .create(newDish)
+        .then(()=> {
+            res.status(201).send()
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
 exports.restaurantList = function(req, res) {
     let page = parseInt(req.query._page, 10);
     let limit = 20;
@@ -113,41 +203,19 @@ exports.restaurantList = function(req, res) {
         });
 };
 
-/**
- * @api {post} /admin/dish Create Dish
- * @apiName admin.dishCreate
- * @apiGroup admin 
- * @apiPermission Admin
- *
- * @apiParam {string} name dish name
- * @apiParam {int} restaurant_id 
- * @apiParam {string} [description] dish's description
- * @apiParam {string} [photo] dish's photo name.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 error
- */
-exports.dishCreate = function(req, res) {
-    let newDish = {
-        name: req.body.name,
-        restaurant_id: parseInt(req.body.restaurant_id, 10),
-        description: req.body.description,
-        photo: req.body.photo
-    };
+exports.restaurantDetails = function(req, res) {
+    let _id = parseInt(req.params.id, 10);
 
-    if (!newDish.name || !newDish.restaurant_id) {
+    if (!_id) {
         return res.status(400).json({
-            msg: 'name & restaurant_id must provided.'
+            msg: 'id must provided.'
         });
     }
 
-    Dish
-        .create(newDish)
-        .then(()=> {
-            res.status(201).send()
+    Restaurant
+        .findById(_id)
+        .then((result)=> {
+            return res.json(result);
         })
         .catch((err)=> {
             console.error(err);
@@ -155,25 +223,26 @@ exports.dishCreate = function(req, res) {
         });
 };
 
-/**
- * @api {post} /admin/restaurant Create Restaurant
- * @apiName admin.restaurantCreate
- * @apiGroup admin 
- * @apiPermission Admin
- *
- * @apiParam {string} name restaurant name
- * @apiParam {float} lat latitude of restaurant 
- * @apiParam {float} lon longtitude of restaurant 
- * @apiParam {string} location address of restaurant 
- * @apiParam {string} [description] description of restaurant
- * @apiParam {string} [photo] restaurant's photo filename.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 error
- */
+exports.restaurantEdit = function(req, res) {
+    let newVal = req.body;
+    let id = newVal.id;
+    newVal = _.pick(newVal, 'name', 'location', 'description', 'lat', 'lon');
+
+    Restaurant
+        .findById(id)
+        .then((restaurant)=> {
+            _.assign(restaurant, newVal);
+            return restaurant.save();
+        })
+        .then(()=> {
+            res.status(204).send();
+        })
+        .catch((err)=> {
+            console.error(err);
+            res.status(500).send();
+        });
+};
+
 exports.restaurantCreate = function(req, res) {
     let newRestaurant = {
         name: req.body.name,

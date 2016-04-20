@@ -30,7 +30,7 @@ exports = module.exports = function(options) {
 
     options = _.extend({
         log: true,
-        csrf: false
+        csrf: true 
     }, options);
 
     // Configuration

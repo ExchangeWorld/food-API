@@ -27,6 +27,7 @@ angular
 
         // Configuration of main utils
         configMember(nga, admin);
+        configDish(nga, admin);
         configRestaurant(nga, admin);
 
         admin.menu(menu(nga, admin));

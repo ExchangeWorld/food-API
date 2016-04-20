@@ -7,7 +7,7 @@ function menu(nga, admin) {
             .addChild(nga.menu()
                 .title('會員列表')
                 .link('/memberList/list?_page=1') // use the same entity list for several menu items
-                .icon('<span class="fa fa-user-times fa-fw"></span>')) // no active() function => will never appear active
+                .icon('<span class="fa fa-user fa-fw"></span>')) // no active() function => will never appear active
             .addChild(nga.menu()
                 .title('Customers')
                 .link('/customers/list?search={"has_ordered":"true"}') // use the same entity list for several menu items
@@ -27,9 +27,18 @@ function menu(nga, admin) {
                 .link('/restaurantList/list?_page=1')
                 .icon('<span class="fa fa-credit-card fa-fw"></span>'))
             .addChild(nga.menu()
-                .title('Invoices')
-                .link('/commands/list?search={"status":"delivered"}')
-                .icon('<span class="fa fa-usd fa-fw"></span>'))
+                .title('Cancels')
+                .link('/commands/list?search={"status":"cancelled"}')
+                .icon('<span class="fa fa-hand-o-left fa-fw"></span>'))
+        )
+        .addChild(nga.menu()
+            .title('Dish')
+            .icon('<span class="fa fa-shopping-cart fa-fw"></span>')
+            .active(path => path.indexOf('/dish') === 0)
+            .addChild(nga.menu()
+                .title('菜單列表')
+                .link('/dishList/list?_page=1')
+                .icon('<span class="fa fa-credit-card fa-fw"></span>'))
             .addChild(nga.menu()
                 .title('Cancels')
                 .link('/commands/list?search={"status":"cancelled"}')
